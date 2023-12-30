@@ -11,6 +11,7 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import Compressor from "compressorjs";
 import TextField from "@mui/material/TextField";
+import InputAdornment from "@mui/material/InputAdornment";
 
 export default function App() {
   const [file, setFile] = useState();
@@ -24,7 +25,6 @@ export default function App() {
     "https://kvsjbenmmfqnabxmiunh.supabase.co",
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2c2piZW5tbWZxbmFieG1pdW5oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDM5MjU4MjcsImV4cCI6MjAxOTUwMTgyN30.Gwzvs3yVxmaS_iVXVwhBPBo3fPWSFd5C1G4qaAFOoHA",
   );
-
   // Upload file using standard upload
   async function uploadFile(file) {
     new Compressor(file, {
@@ -53,7 +53,6 @@ export default function App() {
       console.log({ fileUrl, pUrl });
     }
   }
-
   const askLLM = async () => {
     const req = { file, query };
     console.log(req);
@@ -66,7 +65,6 @@ export default function App() {
 
     setResponse(response.data);
   };
-
   async function fileToGenerativePart(file) {
     uploadFile(file);
 
@@ -80,7 +78,6 @@ export default function App() {
       inlineData: { data: await base64EncodedDataPromise, mimeType: file.type },
     };
   }
-
   async function updateFile(files) {
     const file = files[0];
     const data = await fileToGenerativePart(file);
@@ -116,25 +113,34 @@ export default function App() {
           )}
 
           <TextField
-            id="outlined-basic"
+            id="query"
             label="Question"
             variant="outlined"
             onChange={(e) => setQuery(e.target.value)}
-            fullWidth
             multiline
             rows={4}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment
+                  onClick={() => {
+                    document.getElementById("query").value = "";
+                    setQuery("");
+                  }}
+                >
+                  x
+                </InputAdornment>
+              ),
+            }}
           />
         </CardContent>
         <CardActions>
-          <Button onClick={() => askLLM()}>Ask Question</Button>
+          <Button fullWidth onClick={() => askLLM()}>
+            Ask Question
+          </Button>
         </CardActions>
       </Card>
-      <Box>
-        {response && (
-          <div style={{ width: "90vw", overflow: "wrap" }}>
-            {JSON.stringify(response, null, 2)}
-          </div>
-        )}
+      <Box style={{ width: "90vw", overflow: "wrap", padding: "10px 5px" }}>
+        {response && <div>{response}</div>}
       </Box>
       <Backdrop sx={{ color: "#fff", zIndex: 1 }} open={isLoading}>
         <CircularProgress color="inherit" />

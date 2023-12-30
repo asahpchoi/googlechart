@@ -1,8 +1,17 @@
+body {
+  font-family: "Roboto";
+  font-size: 1em;
+}
+
 .App {
   display: flex;
   flex-direction: column;
+  margin: 5px;
 }
 
+.App * {
+  margin: 10px;
+}
 input {
   width: 100%;
 }
