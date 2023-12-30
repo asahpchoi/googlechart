@@ -35,15 +35,11 @@ export default function App() {
     const data = await fileToGenerativePart(file);
 
     setFile(data);
-    console.log(data);
   }
 
   return (
     <div className="App">
       <input type="file" onChange={(e) => updateFile(e.target.files)} />
-      {response}
-      <textarea onChange={(e) => setQuery(e.target.value)} />
-      <button onClick={() => askLLM()}>Testing</button>
       {file && (
         <p>
           <img
@@ -51,6 +47,10 @@ export default function App() {
           />{" "}
         </p>
       )}
+      <textarea onChange={(e) => setQuery(e.target.value)} />
+      <button onClick={() => askLLM()}>Ask Question</button>
+
+      <div>{response && <div>{JSON.stringify(response, null, 2)}</div>}</div>
     </div>
   );
 }
