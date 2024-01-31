@@ -12,6 +12,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Compressor from "compressorjs";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
+import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
 
 export default function App() {
   const [file, setFile] = useState();
@@ -19,6 +20,7 @@ export default function App() {
   const [response, setResponse] = useState();
   const [fileUrl, setFileUrl] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const recorderControls = useAudioRecorder();
 
   // Create Supabase client
   const supabase = createClient(
@@ -85,6 +87,15 @@ export default function App() {
     setFile(data);
   }
 
+  const addAudioElement = (blob) => {
+    console.log({ blob });
+    const url = URL.createObjectURL(blob);
+    const audio = document.createElement("audio");
+    audio.src = url;
+    audio.controls = true;
+    document.body.appendChild(audio);
+  };
+
   return (
     <div>
       <Card>
@@ -137,6 +148,19 @@ export default function App() {
           <Button fullWidth onClick={() => askLLM()}>
             Ask Question
           </Button>
+          <AudioRecorder
+            onRecordingComplete={addAudioElement}
+            audioTrackConstraints={{
+              noiseSuppression: true,
+              echoCancellation: true,
+            }}
+            recorderControls={recorderControls}
+          />
+          {recorderControls.isRecording && (
+            <button onClick={recorderControls.stopRecording}>
+              Stop recording
+            </button>
+          )}
         </CardActions>
       </Card>
       <Box style={{ width: "90vw", overflow: "wrap", padding: "10px 5px" }}>
