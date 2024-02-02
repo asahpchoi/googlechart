@@ -102,6 +102,7 @@ export default function App() {
     const response = await askReplicate(pUrl);
     setTranscript(response.data.transcription);
     setQuery(response.data.transcription);
+    askLLM();
     return response;
     //console.log({ pUrl });
   };
