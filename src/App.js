@@ -9,10 +9,11 @@ import CardContent from "@mui/material/CardContent";
 import { createClient } from "@supabase/supabase-js";
 import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
-import Compressor from "compressorjs";
+
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
+//import Replicate from "replicate";
 
 export default function App() {
   const [file, setFile] = useState();
@@ -20,26 +21,18 @@ export default function App() {
   const [response, setResponse] = useState();
   const [fileUrl, setFileUrl] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [transcript, setTranscript] = useState();
   const recorderControls = useAudioRecorder();
 
   // Create Supabase client
   const supabase = createClient(
-    "https://kvsjbenmmfqnabxmiunh.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2c2piZW5tbWZxbmFieG1pdW5oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDM5MjU4MjcsImV4cCI6MjAxOTUwMTgyN30.Gwzvs3yVxmaS_iVXVwhBPBo3fPWSFd5C1G4qaAFOoHA",
+    "https://lvpqqxkyijqwrbudgjiu.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2cHFxeGt5aWpxd3JidWRnaml1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDY2ODI5OTIsImV4cCI6MjAyMjI1ODk5Mn0.vg8z-tZxFnIlzY3-kGHoHYeb-OWNagvcbCxjxc_Qh6g",
   );
   // Upload file using standard upload
   async function uploadFile(file) {
-    new Compressor(file, {
-      quality: 0.8, // 0.6 can also be used, but its not recommended to go below.
-      success: (compressedResult) => {
-        // compressedResult has the compressed file.
-        // Use the compressed file to upload the images to your server.
-        console.log({ file, compressedResult });
-      },
-    });
-
     const { data, error } = await supabase.storage
-      .from("photos")
+      .from("audiofiles")
       .upload(file.name, file, { upsert: true });
 
     if (error) {
@@ -49,10 +42,10 @@ export default function App() {
       // Handle success
       console.log(data);
 
-      const pUrl = `https://kvsjbenmmfqnabxmiunh.supabase.co/storage/v1/object/public/${data.fullPath}`;
+      const pUrl = `https://lvpqqxkyijqwrbudgjiu.supabase.co/storage/v1/object/public/${data.fullPath}`;
 
       setFileUrl(pUrl);
-      console.log({ fileUrl, pUrl });
+      return pUrl;
     }
   }
   const askLLM = async () => {
@@ -87,13 +80,30 @@ export default function App() {
     setFile(data);
   }
 
-  const addAudioElement = (blob) => {
+  async function askReplicate(audio) {
+    console.log({ audio });
+    const response = await axios.get(
+      `https://299hv3-3000.csb.app/v2t?audio=${audio}`,
+    );
+    console.log({ response });
+    return response;
+  }
+
+  const addAudioElement = async (blob) => {
     console.log({ blob });
     const url = URL.createObjectURL(blob);
     const audio = document.createElement("audio");
     audio.src = url;
     audio.controls = true;
     document.body.appendChild(audio);
+    const file = new File([blob], "audio.mp3");
+    const pUrl = await uploadFile(file);
+
+    const response = await askReplicate(pUrl);
+    setTranscript(response.data.transcription);
+    setQuery(response.data.transcription);
+    return response;
+    //console.log({ pUrl });
   };
 
   return (
@@ -114,6 +124,7 @@ export default function App() {
           >
             Take Photo
           </Button>
+
           {file && (
             <p>
               <img
@@ -166,6 +177,7 @@ export default function App() {
       <Box style={{ width: "90vw", overflow: "wrap", padding: "10px 5px" }}>
         {response && <div>{response}</div>}
       </Box>
+      <p>{transcript}</p>
       <Backdrop sx={{ color: "#fff", zIndex: 1 }} open={isLoading}>
         <CircularProgress color="inherit" />
       </Backdrop>
