@@ -136,11 +136,11 @@ export default function App() {
 
           <TextField
             id="query"
-            label="Question"
             variant="outlined"
             onChange={(e) => setQuery(e.target.value)}
             multiline
             rows={4}
+            value={query}
             InputProps={{
               endAdornment: (
                 <InputAdornment
