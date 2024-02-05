@@ -14,6 +14,7 @@ import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
 //import Replicate from "replicate";
+const supabaseUrl = "https://lvpqqxkyijqwrbudgjiu.supabase.co";
 
 export default function App() {
   const [file, setFile] = useState();
@@ -26,7 +27,7 @@ export default function App() {
 
   // Create Supabase client
   const supabase = createClient(
-    "https://lvpqqxkyijqwrbudgjiu.supabase.co",
+    supabaseUrl,
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx2cHFxeGt5aWpxd3JidWRnaml1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDY2ODI5OTIsImV4cCI6MjAyMjI1ODk5Mn0.vg8z-tZxFnIlzY3-kGHoHYeb-OWNagvcbCxjxc_Qh6g",
   );
   // Upload file using standard upload
@@ -42,7 +43,7 @@ export default function App() {
       // Handle success
       console.log(data);
 
-      const pUrl = `https://lvpqqxkyijqwrbudgjiu.supabase.co/storage/v1/object/public/${data.fullPath}`;
+      const pUrl = `${supabaseUrl}/storage/v1/object/public/${data.fullPath}`;
 
       setFileUrl(pUrl);
       return pUrl;
